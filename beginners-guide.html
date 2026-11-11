@@ -1,0 +1,893 @@
+<title>Flick</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;600&family=Newsreader:opsz,wght@6..72,400..600&display=swap">
+
+<style>
+  :root {
+    --paper:   #F7F8F5;
+    --card:    #FFFFFF;
+    --ink:     #23262A;
+    --soft:    #565D64;
+    --faint:   #8D959D;
+    --rule:    #DEE2DC;
+    --grid:    #E9ECE7;
+    --blue:    #2E7FA8;
+    --blue-wash:#DCEDF5;
+    --red:     #C4452E;
+    --red-wash:#F7E2DD;
+    --stage:   #FFFFFF;
+
+    --f-head: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+    --f-body: "Newsreader", Georgia, serif;
+    --f-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+
+    --s--1: 0.8125rem;
+    --s-0:  1.09rem;
+    --s-1:  1.3rem;
+    --s-2:  1.7rem;
+    --s-3:  2.3rem;
+    --s-4:  clamp(2.5rem, 7vw, 4.25rem);
+
+    --measure: 33rem;
+    --wide: 60rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:   #131518;
+      --card:    #1B1E22;
+      --ink:     #E9ECEF;
+      --soft:    #A2AAB2;
+      --faint:   #737C85;
+      --rule:    #2A2F35;
+      --grid:    #1A1D21;
+      --blue:    #5FB8E0;
+      --blue-wash:#14313E;
+      --red:     #FF8266;
+      --red-wash:#3A211B;
+      --stage:   #1B1E22;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:   #131518;
+    --card:    #1B1E22;
+    --ink:     #E9ECEF;
+    --soft:    #A2AAB2;
+    --faint:   #737C85;
+    --rule:    #2A2F35;
+    --grid:    #1A1D21;
+    --blue:    #5FB8E0;
+    --blue-wash:#14313E;
+    --red:     #FF8266;
+    --red-wash:#3A211B;
+    --stage:   #1B1E22;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: var(--s-0);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: var(--wide);
+    margin: 0 auto;
+    padding: 0 clamp(1.15rem, 4vw, 2.25rem);
+  }
+
+  .col { max-width: var(--measure); }
+
+  h1, h2, h3, .kicker, .btn, .big { font-family: var(--f-head); }
+
+  h1 {
+    font-size: var(--s-4);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  h2 {
+    font-size: var(--s-2);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-size: 1.12rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  p { margin: 0; }
+
+  .kicker {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin: 0;
+  }
+
+  .lede { font-size: var(--s-1); line-height: 1.5; color: var(--soft); }
+  .prose { display: flex; flex-direction: column; gap: 0.95rem; color: var(--soft); }
+  .prose strong { color: var(--ink); font-weight: 600; }
+  .mono { font-family: var(--f-mono); font-size: 0.9em; }
+
+  header.mast {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.5rem 0 0;
+  }
+
+  .mark {
+    display: flex; align-items: center; gap: 0.55rem;
+    font-family: var(--f-head); font-weight: 800; font-size: 1.1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .mast-meta { font-family: var(--f-mono); font-size: var(--s--1); color: var(--faint); }
+
+  .hero { padding: clamp(2.75rem, 8vw, 5rem) 0 0; display: flex; flex-direction: column; gap: 1.1rem; }
+
+  .hero .lede { max-width: 38rem; }
+
+  .hi { background: var(--blue-wash); padding: 0.05em 0.3em; border-radius: 3px; color: var(--ink); }
+
+  section { padding: clamp(3rem, 7vw, 4.75rem) 0 0; }
+  .sec-head { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
+
+  /* ---- teaching panel ---- */
+
+  .panel {
+    margin-top: 1.6rem;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--card);
+    overflow: hidden;
+  }
+
+  .panel-head {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    padding: 0.75rem 0.9rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .btn {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    font-family: var(--f-head);
+  }
+
+  .btn[aria-pressed="true"] {
+    background: var(--blue-wash);
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  .teach { display: block; width: 100%; height: clamp(300px, 44vw, 380px); background: var(--stage); }
+  .teach canvas { display: block; width: 100%; height: 100%; }
+
+  .panel-foot {
+    padding: 0.7rem 0.9rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.9rem;
+    color: var(--soft);
+  }
+
+  .panel-foot b { color: var(--ink); font-weight: 600; }
+
+  /* ---- do-list ---- */
+
+  .dolist { display: grid; gap: 0.85rem; margin-top: 1.5rem; }
+  @media (min-width: 46rem) { .dolist { grid-template-columns: 1fr 1fr; } }
+
+  .do {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--card);
+    padding: 1.05rem 1.1rem 1.15rem;
+    display: flex; flex-direction: column; gap: 0.45rem;
+  }
+
+  .do p { font-size: 0.96rem; color: var(--soft); line-height: 1.55; }
+  .do .tagline { font-family: var(--f-mono); font-size: 0.7rem; letter-spacing: 0.06em; color: var(--faint); text-transform: uppercase; }
+
+  /* ---- glossary ---- */
+
+  .gloss { display: flex; flex-direction: column; gap: 0; margin-top: 1.4rem; border-top: 1px solid var(--rule); }
+
+  .term {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  @media (min-width: 42rem) {
+    .term { grid-template-columns: 11rem 1fr; gap: 1.25rem; align-items: baseline; }
+  }
+
+  .term dt { font-family: var(--f-head); font-weight: 700; color: var(--ink); font-size: 1rem; }
+  .term dd { margin: 0; color: var(--soft); font-size: 0.98rem; line-height: 1.55; }
+  .term .demo-strip { grid-column: 1 / -1; margin-top: 0.5rem; }
+
+  .strip { height: 26px; border-radius: 4px; background: var(--grid); position: relative; overflow: hidden; }
+  .pip { position: absolute; top: 5px; width: 16px; height: 16px; border-radius: 4px; background: var(--blue); will-change: transform; }
+
+  /* ---- try it ---- */
+
+  .stage {
+    position: relative; display: block; width: 100%;
+    height: clamp(200px, 30vw, 260px);
+    touch-action: none; cursor: crosshair; background: var(--stage);
+  }
+  .stage canvas { display: block; width: 100%; height: 100%; }
+  .stage-note {
+    position: absolute; inset: auto 0 0 0; padding: 0.5rem 1rem 0.8rem;
+    font-family: var(--f-mono); font-size: var(--s--1); color: var(--faint);
+    text-align: center; pointer-events: none; transition: opacity 0.25s ease;
+  }
+  .stage.used .stage-note { opacity: 0; }
+
+  .result {
+    padding: 0.85rem 0.9rem;
+    border-top: 1px solid var(--rule);
+    display: flex; flex-direction: column; gap: 0.4rem;
+  }
+  .result .code { font-family: var(--f-mono); font-size: var(--s--1); overflow-x: auto; white-space: pre; }
+  .result .code b { color: var(--blue); }
+  .result .said { font-size: 0.92rem; color: var(--soft); }
+
+  /* ---- exercise ---- */
+
+  .exercise {
+    margin-top: 1.5rem;
+    border-left: 3px solid var(--blue);
+    background: var(--card);
+    border-radius: 0 6px 6px 0;
+    padding: 1.15rem 1.25rem 1.3rem;
+    display: flex; flex-direction: column; gap: 0.75rem;
+  }
+
+  .exercise ol { margin: 0; padding-left: 1.15rem; color: var(--soft); display: flex; flex-direction: column; gap: 0.5rem; }
+  .exercise li { line-height: 1.55; }
+  .exercise li strong { color: var(--ink); font-weight: 600; }
+
+  footer { padding: clamp(3rem, 7vw, 4rem) 0 3rem; color: var(--faint); font-size: 0.9rem; }
+  footer .rule { height: 1px; background: var(--rule); margin-bottom: 1rem; }
+
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="mark">
+      <svg width="22" height="22" viewBox="0 0 108 108" aria-hidden="true">
+        <path d="M30,78 C 42,78 46,30 78,30" fill="none" stroke="var(--blue)" stroke-width="10" stroke-linecap="round"></path>
+      </svg>
+      Flick
+    </div>
+    <div class="mast-meta">a guide for animators</div>
+  </header>
+
+  <div class="hero">
+    <p class="kicker">What you can do with it</p>
+    <h1>You already know how it should move.</h1>
+    <p class="lede">Flick is for the moment you can <em>picture</em> a movement — the drawer that slides then thunks, the card that springs in — but you can't turn it into numbers. You show it the motion with your thumb. It gives you <span class="hi">the curve and the code</span>.</p>
+  </div>
+
+  <section>
+    <div class="sec-head col">
+      <p class="kicker">Start here</p>
+      <h2>If you've drawn a spacing chart, you've drawn an easing curve</h2>
+    </div>
+    <div class="prose col">
+      <p>You know the little ladder of tick marks animators draw beside a movement — bunched at the ends, spread out in the middle? That's a <strong>spacing chart</strong>, and it says the same thing an easing curve says: where the thing is at each moment in time.</p>
+      <p>They're two pictures of one idea. Watch them move together.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head" role="group" aria-label="Choose a motion">
+        <button class="btn" data-ease="linear" aria-pressed="false">No easing</button>
+        <button class="btn" data-ease="slowout" aria-pressed="true">Slow out</button>
+        <button class="btn" data-ease="both" aria-pressed="false">Slow in &amp; out</button>
+        <button class="btn" data-ease="snappy" aria-pressed="false">Snappy</button>
+        <button class="btn" data-ease="bouncy" aria-pressed="false">Overshoot</button>
+      </div>
+      <div class="teach"><canvas id="teach"></canvas></div>
+      <p class="panel-foot" id="teachNote"><b>Slow out.</b> Starts fast, coasts to a stop. Notice the ticks bunch up at the end — that's the same information as the curve flattening out.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="kicker">The point</p>
+      <h2>Six things this actually gets you</h2>
+    </div>
+
+    <div class="dolist">
+      <div class="do">
+        <span class="tagline">Observation</span>
+        <h3>Steal a movement from real life</h3>
+        <p>Push a mug across a table. Watch a door swing shut. Then redo that motion with your thumb — Flick writes down the timing you just performed, so you can put it into your animation instead of guessing at it.</p>
+      </div>
+      <div class="do">
+        <span class="tagline">Diagnosis</span>
+        <h3>Find out why it feels wrong</h3>
+        <p>"It looks off but I don't know why" is the beginner's whole experience. Flick names it: your motion is front-loaded, or it overshoots 19% and takes 424ms to settle. Once it has a name you can fix it.</p>
+      </div>
+      <div class="do">
+        <span class="tagline">Practice</span>
+        <h3>Learn what curve shapes feel like</h3>
+        <p>Flick a snappy motion, look at the curve. Flick a lazy one, look again. After a week of that you can read a curve on sight — you learned it by making them, not by memorising them.</p>
+      </div>
+      <div class="do">
+        <span class="tagline">Judgement</span>
+        <h3>Test one timing on five things at once</h3>
+        <p>A timing that's perfect for something sliding can feel sluggish on a fade and wrong on a scale. Flick plays your curve on five different movements together, with the boring default running faintly behind so you can see the difference.</p>
+      </div>
+      <div class="do">
+        <span class="tagline">Collection</span>
+        <h3>Keep the ones that work</h3>
+        <p>Save a motion, name it, tag it. Over months you stop reaching for the same default ease and start having <em>your</em> movements — the snap you always use, your favourite settle.</p>
+      </div>
+      <div class="do">
+        <span class="tagline">Portability</span>
+        <h3>Take one feeling into every tool</h3>
+        <p>Get the motion once and it comes out as After Effects keyframe influence, or CSS, or code for an app. The same movement, not five slightly different guesses at it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="kicker">Now you try</p>
+      <h2>Drag across this box</h2>
+    </div>
+    <div class="prose col">
+      <p>This is a small version of the app, running right here. Drag from left to right the way a movement should feel — hesitate, then dash, then let it settle past the end and come back. Watch what it writes down.</p>
+    </div>
+
+    <div class="panel">
+      <div class="stage" id="stage">
+        <canvas id="plot"></canvas>
+        <div class="stage-note">drag slowly enough to leave a trail — about half a second</div>
+      </div>
+      <div class="result">
+        <div class="code" id="codeOut">cubic-bezier(<b>0.42, 0, 0.58, 1</b>) over <b>420ms</b></div>
+        <div class="said" id="saidOut">Try a drag — this is showing a plain slow-in-and-out for now.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="kicker">The words it uses</p>
+      <h2>Five terms, in plain language</h2>
+    </div>
+
+    <dl class="gloss">
+      <div class="term">
+        <dt>Easing</dt>
+        <dd>How something speeds up and slows down on its way. Nothing in real life moves at a constant speed, so animation that does looks dead.</dd>
+        <div class="demo-strip"><div class="strip"><div class="pip" id="g1"></div></div></div>
+      </div>
+      <div class="term">
+        <dt>Anticipation</dt>
+        <dd>The little pull-back before the move — a wind-up. A character crouches before jumping. If you tug your thumb backwards before dragging forward, Flick spots it and measures it.</dd>
+        <div class="demo-strip"><div class="strip"><div class="pip" id="g2"></div></div></div>
+      </div>
+      <div class="term">
+        <dt>Overshoot</dt>
+        <dd>Going past where you're headed, then coming back. It's what makes motion feel alive and physical rather than mechanical.</dd>
+        <div class="demo-strip"><div class="strip"><div class="pip" id="g3"></div></div></div>
+      </div>
+      <div class="term">
+        <dt>Settle</dt>
+        <dd>How long the wobble takes to die down after the overshoot. Too fast reads as stiff, too slow reads as floppy.</dd>
+        <div class="demo-strip"><div class="strip"><div class="pip" id="g4"></div></div></div>
+      </div>
+      <div class="term">
+        <dt>Bezier vs spring</dt>
+        <dd>Two ways of writing a motion down. A <strong>bezier</strong> is a fixed shape you draw. A <strong>spring</strong> is a physics rule — how stiff and how bouncy — and it's the honest way to describe something that overshoots and settles. Flick works out which one your gesture actually was.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="kicker">Your first exercise</p>
+      <h2>The drawer</h2>
+    </div>
+
+    <div class="exercise col">
+      <p class="prose" style="color:var(--soft)">A real drawer doesn't glide to a stop. It rushes, slows hard, and thunks. Fifteen minutes:</p>
+      <ol>
+        <li>Open a real drawer. <strong>Watch only the timing</strong> — not the drawer, the speed changes.</li>
+        <li>Flick that motion three times. Save the one that felt closest, call it <span class="mono">Drawer</span>.</li>
+        <li>Look at what Flick says about it. Was it front-loaded? Did you overshoot?</li>
+        <li>Now flick a <strong>deliberately wrong</strong> version — smooth and even. Compare the two curves.</li>
+      </ol>
+      <p style="color:var(--soft); font-size:0.95rem">The gap between those two curves is the thing you're learning to see.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="rule"></div>
+    <p>Flick runs entirely on your phone — no account, no internet, nothing sent anywhere. 62&nbsp;KB.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function tok(n) {
+    return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  }
+
+  // ---------- easing ----------
+  function bez(x1, y1, x2, y2) {
+    var cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+    var cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+    function sx(t) { return ((ax * t + bx) * t + cx) * t; }
+    function sy(t) { return ((ay * t + by) * t + cy) * t; }
+    function dx(t) { return (3 * ax * t + 2 * bx) * t + cx; }
+    return function (x) {
+      if (x <= 0) return 0;
+      if (x >= 1) return 1;
+      var t = x, i, e, d;
+      for (i = 0; i < 8; i++) {
+        e = sx(t) - x;
+        if (Math.abs(e) < 1e-7) return sy(t);
+        d = dx(t);
+        if (Math.abs(d) < 1e-7) break;
+        t -= e / d;
+      }
+      var lo = 0, hi = 1; t = x;
+      for (i = 0; i < 26; i++) {
+        var v = sx(t);
+        if (Math.abs(v - x) < 1e-7) break;
+        if (v > x) hi = t; else lo = t;
+        t = (lo + hi) / 2;
+      }
+      return sy(t);
+    };
+  }
+
+  var PRESETS = {
+    linear:  { p: [0, 0, 1, 1],          ms: 900, label: "No easing",
+      note: "<b>No easing.</b> Constant speed the whole way. The ticks are evenly spaced — and it looks lifeless, because nothing real moves like this." },
+    slowout: { p: [0, 0, 0.35, 1],       ms: 800, label: "Slow out",
+      note: "<b>Slow out.</b> Starts fast, coasts to a stop. Notice the ticks bunch up at the end — that's the same information as the curve flattening out." },
+    both:    { p: [0.45, 0, 0.55, 1],    ms: 900, label: "Slow in &amp; out",
+      note: "<b>Slow in and out.</b> Eases away and eases in. Ticks bunch at <em>both</em> ends, spread through the middle. The most common, safest choice." },
+    snappy:  { p: [0.2, 0.9, 0.3, 1],    ms: 520, label: "Snappy",
+      note: "<b>Snappy.</b> Nearly all the distance is covered immediately, then it eases in. Reads as responsive and confident." },
+    bouncy:  { p: [0.34, 1.7, 0.5, 1],   ms: 900, label: "Overshoot",
+      note: "<b>Overshoot.</b> It goes past the target and comes back. Look at the curve rising above the top line — that's the overshoot, and it's what makes motion feel physical." }
+  };
+
+  var currentKey = "slowout";
+
+  // ---------- teaching canvas ----------
+  var tc = document.getElementById("teach");
+  var tctx = tc.getContext("2d");
+  var TW = 0, TH = 0, dpr = 1;
+
+  function sizeTeach() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var box = tc.parentElement;
+    TW = box.clientWidth; TH = box.clientHeight;
+    tc.width = Math.round(TW * dpr);
+    tc.height = Math.round(TH * dpr);
+    tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function drawTeach(t) {
+    if (!TW || !TH) return;
+    var e = bez.apply(null, PRESETS[currentKey].p);
+    var ink = tok("--ink"), faint = tok("--faint"), blue = tok("--blue"),
+        grid = tok("--grid"), rule = tok("--rule");
+
+    tctx.clearRect(0, 0, TW, TH);
+
+    var padL = 26, padR = 26;
+    var W = TW - padL - padR;
+    var rowH = TH / 3;
+
+    // ---- row 1: the ball ----
+    var y1 = rowH * 0.5;
+    tctx.strokeStyle = grid;
+    tctx.lineWidth = 10;
+    tctx.lineCap = "round";
+    tctx.beginPath();
+    tctx.moveTo(padL, y1); tctx.lineTo(padL + W, y1); tctx.stroke();
+
+    var v = e(t);
+    tctx.fillStyle = blue;
+    tctx.beginPath();
+    tctx.arc(padL + v * W, y1, 11, 0, Math.PI * 2);
+    tctx.fill();
+
+    tctx.fillStyle = faint;
+    tctx.font = "600 11px " + (tok("--f-mono") || "monospace");
+    tctx.fillText("THE MOVEMENT", padL, rowH * 0.5 - 26);
+
+    // ---- row 2: spacing chart ----
+    var y2 = rowH * 1.55;
+    tctx.strokeStyle = rule;
+    tctx.lineWidth = 1.5;
+    tctx.beginPath();
+    tctx.moveTo(padL, y2); tctx.lineTo(padL + W, y2); tctx.stroke();
+
+    var TICKS = 14;
+    for (var i = 0; i <= TICKS; i++) {
+      var pos = e(i / TICKS);
+      var x = padL + pos * W;
+      var isEnd = (i === 0 || i === TICKS);
+      tctx.strokeStyle = isEnd ? ink : faint;
+      tctx.lineWidth = isEnd ? 2 : 1.5;
+      tctx.beginPath();
+      tctx.moveTo(x, y2 - 11); tctx.lineTo(x, y2 + 11); tctx.stroke();
+    }
+    tctx.fillStyle = faint;
+    tctx.fillText("THE SPACING CHART", padL, y2 - 26);
+
+    // ---- row 3: the curve ----
+    var top = rowH * 2 + 26, bot = TH - 22;
+    var lo = 0, hi = 1, k;
+    for (k = 0; k <= 40; k++) {
+      var q = e(k / 40);
+      if (q < lo) lo = q;
+      if (q > hi) hi = q;
+    }
+    var pad = Math.max(0.1, (hi - lo) * 0.08);
+    lo -= pad; hi += pad;
+    function Y(val) { return bot - ((val - lo) / (hi - lo)) * (bot - top); }
+
+    tctx.strokeStyle = grid;
+    tctx.lineWidth = 1;
+    [0, 1].forEach(function (val) {
+      tctx.beginPath();
+      tctx.moveTo(padL, Math.round(Y(val)) + 0.5);
+      tctx.lineTo(padL + W, Math.round(Y(val)) + 0.5);
+      tctx.stroke();
+    });
+
+    tctx.strokeStyle = blue;
+    tctx.lineWidth = 2.5;
+    tctx.beginPath();
+    for (k = 0; k <= 140; k++) {
+      var tt = k / 140;
+      var px = padL + tt * W, py = Y(e(tt));
+      if (k === 0) tctx.moveTo(px, py); else tctx.lineTo(px, py);
+    }
+    tctx.stroke();
+
+    tctx.fillStyle = blue;
+    tctx.beginPath();
+    tctx.arc(padL + t * W, Y(v), 5, 0, Math.PI * 2);
+    tctx.fill();
+
+    tctx.fillStyle = faint;
+    tctx.font = "600 11px " + (tok("--f-mono") || "monospace");
+    tctx.fillText("THE CURVE", padL, top - 12);
+  }
+
+  // ---------- glossary strips ----------
+  var strips = [
+    { el: document.getElementById("g1"), e: bez(0.45, 0, 0.55, 1), ms: 900 },
+    { el: document.getElementById("g2"), e: bez(0.6, -0.5, 0.4, 1), ms: 1000 },
+    { el: document.getElementById("g3"), e: bez(0.34, 1.7, 0.5, 1), ms: 950 },
+    { el: document.getElementById("g4"), e: bez(0.2, 1.5, 0.3, 1), ms: 1400 }
+  ];
+
+  // ---------- try-it canvas ----------
+  var stage = document.getElementById("stage");
+  var pc = document.getElementById("plot");
+  var pctx = pc.getContext("2d");
+  var codeOut = document.getElementById("codeOut");
+  var saidOut = document.getElementById("saidOut");
+  var PW = 0, PH = 0;
+  var fitP = [0.42, 0, 0.58, 1], fitDur = 420, raw = null, drawing = false, pts = [], samples = [];
+
+  function sizePlot() {
+    PW = stage.clientWidth; PH = stage.clientHeight;
+    pc.width = Math.round(PW * dpr); pc.height = Math.round(PH * dpr);
+    pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawPlot();
+  }
+
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+
+  function minimize(fn, start, step, iters) {
+    var n = start.length, i, j, k, simplex = [], fv = [];
+    for (i = 0; i <= n; i++) {
+      var p = start.slice();
+      if (i > 0) p[i - 1] += step;
+      simplex.push(p); fv.push(fn(p));
+    }
+    for (k = 0; k < iters; k++) {
+      var ord = simplex.map(function (_, x) { return x; }).sort(function (a, b) { return fv[a] - fv[b]; });
+      simplex = ord.map(function (x) { return simplex[x]; });
+      fv = ord.map(function (x) { return fv[x]; });
+      if (Math.abs(fv[n] - fv[0]) < 1e-12) break;
+      var cen = new Array(n).fill(0);
+      for (i = 0; i < n; i++) { for (j = 0; j < n; j++) cen[i] += simplex[j][i]; cen[i] /= n; }
+      var xr = cen.map(function (c, x) { return c + (c - simplex[n][x]); });
+      var fr = fn(xr);
+      if (fr < fv[0]) {
+        var xe = cen.map(function (c, x) { return c + 2 * (xr[x] - c); });
+        var fe = fn(xe);
+        if (fe < fr) { simplex[n] = xe; fv[n] = fe; } else { simplex[n] = xr; fv[n] = fr; }
+      } else if (fr < fv[n - 1]) { simplex[n] = xr; fv[n] = fr; }
+      else {
+        var xc = cen.map(function (c, x) { return c + 0.5 * (simplex[n][x] - c); });
+        var fc = fn(xc);
+        if (fc < fv[n]) { simplex[n] = xc; fv[n] = fc; }
+        else {
+          for (i = 1; i <= n; i++) {
+            for (j = 0; j < n; j++) simplex[i][j] = simplex[0][j] + 0.5 * (simplex[i][j] - simplex[0][j]);
+            fv[i] = fn(simplex[i]);
+          }
+        }
+      }
+    }
+    var best = 0;
+    for (i = 1; i <= n; i++) if (fv[i] < fv[best]) best = i;
+    return simplex[best];
+  }
+
+  function fit(ts, ps) {
+    var starts = [[0.25, 0.1, 0.25, 1], [0.42, 0, 0.58, 1], [0.5, 0, 0.5, 1], [0.34, 1.56, 0.64, 1]];
+    var best = null, bestE = Infinity;
+    function err(p) {
+      var b = bez(clamp(p[0], 0, 1), clamp(p[1], -3, 4), clamp(p[2], 0, 1), clamp(p[3], -3, 4));
+      var s = 0;
+      for (var i = 0; i < ts.length; i++) { var d = b(ts[i]) - ps[i]; s += d * d; }
+      var pen = Math.pow(p[0] - clamp(p[0], 0, 1), 2) + Math.pow(p[2] - clamp(p[2], 0, 1), 2);
+      return s / ts.length + pen * 10;
+    }
+    for (var i = 0; i < starts.length; i++) {
+      var r = minimize(err, starts[i], 0.15, 240);
+      var c = [clamp(r[0], 0, 1), clamp(r[1], -3, 4), clamp(r[2], 0, 1), clamp(r[3], -3, 4)];
+      var e = err(c);
+      if (e < bestE) { bestE = e; best = c; }
+    }
+    return best;
+  }
+
+  function num(v) {
+    var s = v.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+    return s === "-0" ? "0" : s;
+  }
+
+  function drawPlot() {
+    if (!PW || !PH) return;
+    var padL = 30, padR = 20, padT = 18, padB = 30;
+    var W = PW - padL - padR, H = PH - padT - padB;
+    var faint = tok("--faint"), blue = tok("--blue"), grid = tok("--grid");
+
+    pctx.clearRect(0, 0, PW, PH);
+
+    var e = bez.apply(null, fitP);
+    var lo = 0, hi = 1, i;
+    for (i = 0; i <= 40; i++) { var q = e(i / 40); if (q < lo) lo = q; if (q > hi) hi = q; }
+    if (raw) for (i = 0; i < raw.ps.length; i++) { if (raw.ps[i] < lo) lo = raw.ps[i]; if (raw.ps[i] > hi) hi = raw.ps[i]; }
+    var pad = Math.max(0.12, (hi - lo) * 0.1);
+    lo -= pad; hi += pad;
+    function X(t) { return padL + t * W; }
+    function Y(v) { return padT + H - ((v - lo) / (hi - lo)) * H; }
+
+    pctx.strokeStyle = grid; pctx.lineWidth = 1;
+    [0, 1].forEach(function (v) {
+      pctx.beginPath();
+      pctx.moveTo(padL, Math.round(Y(v)) + 0.5);
+      pctx.lineTo(padL + W, Math.round(Y(v)) + 0.5);
+      pctx.stroke();
+    });
+    pctx.fillStyle = faint;
+    pctx.font = "11px " + (tok("--f-mono") || "monospace");
+    pctx.fillText("end", 4, Y(1) + 4);
+    pctx.fillText("start", 0, Y(0) + 4);
+
+    if (drawing && pts.length > 1) {
+      pctx.strokeStyle = blue; pctx.lineCap = "round";
+      for (i = 1; i < pts.length; i++) {
+        var a = pts[i - 1], c = pts[i];
+        var dt = Math.max(1, c.t - a.t);
+        var sp = Math.hypot(c.x - a.x, c.y - a.y) / dt;
+        pctx.lineWidth = 1.5 + Math.min(9, sp * 5);
+        pctx.globalAlpha = 0.35 + Math.min(0.6, sp * 0.4);
+        pctx.beginPath(); pctx.moveTo(a.x, a.y); pctx.lineTo(c.x, c.y); pctx.stroke();
+      }
+      pctx.globalAlpha = 1;
+      return;
+    }
+
+    if (raw) {
+      pctx.strokeStyle = faint; pctx.globalAlpha = 0.5; pctx.lineWidth = 2;
+      pctx.beginPath();
+      for (i = 0; i < raw.ts.length; i++) {
+        var px = X(raw.ts[i]), py = Y(raw.ps[i]);
+        if (i === 0) pctx.moveTo(px, py); else pctx.lineTo(px, py);
+      }
+      pctx.stroke(); pctx.globalAlpha = 1;
+    }
+
+    pctx.strokeStyle = blue; pctx.lineWidth = 3; pctx.lineCap = "round";
+    pctx.beginPath();
+    for (i = 0; i <= 150; i++) {
+      var t = i / 150;
+      if (i === 0) pctx.moveTo(X(t), Y(e(t))); else pctx.lineTo(X(t), Y(e(t)));
+    }
+    pctx.stroke();
+  }
+
+  function localPoint(ev) {
+    var r = pc.getBoundingClientRect();
+    return { x: ev.clientX - r.left, y: ev.clientY - r.top };
+  }
+
+  stage.addEventListener("pointerdown", function (ev) {
+    drawing = true; samples = []; pts = [];
+    stage.classList.add("used");
+    try { stage.setPointerCapture(ev.pointerId); } catch (e) {}
+    var q = localPoint(ev);
+    samples.push({ x: q.x, y: q.y, t: ev.timeStamp });
+    pts.push({ x: q.x, y: q.y, t: ev.timeStamp });
+    drawPlot(); ev.preventDefault();
+  });
+
+  stage.addEventListener("pointermove", function (ev) {
+    if (!drawing) return;
+    var evs = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [ev];
+    for (var i = 0; i < evs.length; i++) {
+      var q = localPoint(evs[i]);
+      samples.push({ x: q.x, y: q.y, t: evs[i].timeStamp });
+      pts.push({ x: q.x, y: q.y, t: evs[i].timeStamp });
+    }
+    drawPlot(); ev.preventDefault();
+  });
+
+  function finish(ev) {
+    if (!drawing) return;
+    drawing = false;
+    var q = localPoint(ev);
+    samples.push({ x: q.x, y: q.y, t: ev.timeStamp });
+
+    var a = samples[0], z = samples[samples.length - 1];
+    var dx = z.x - a.x, dy = z.y - a.y;
+    var len = Math.hypot(dx, dy), dur = z.t - a.t;
+
+    if (samples.length < 6 || len < 40 || dur < 60) {
+      saidOut.textContent = len < 40
+        ? "That was a bit short — drag further across the box."
+        : "That was too quick to read. Try taking about half a second.";
+      pts = []; drawPlot(); return;
+    }
+
+    var ux = dx / len, uy = dy / len, ts = [], ps = [], i;
+    for (i = 0; i < samples.length; i++) {
+      var s = samples[i];
+      ps.push(((s.x - a.x) * ux + (s.y - a.y) * uy) / len);
+      ts.push((s.t - a.t) / dur);
+    }
+    ts[0] = 0; ts[ts.length - 1] = 1;
+    for (i = 1; i < ts.length; i++) if (ts[i] <= ts[i - 1]) ts[i] = Math.min(1, ts[i - 1] + 1e-6);
+
+    raw = { ts: ts, ps: ps };
+    fitP = fit(ts, ps);
+    fitDur = Math.max(50, Math.min(5000, Math.round(dur / 10) * 10));
+    pts = [];
+    drawPlot();
+
+    codeOut.innerHTML = "cubic-bezier(<b>" + num(fitP[0]) + ", " + num(fitP[1]) + ", " +
+      num(fitP[2]) + ", " + num(fitP[3]) + "</b>) over <b>" + fitDur + "ms</b>";
+
+    var over = 0, ant = 0, half = 0;
+    for (i = 0; i < ps.length; i++) {
+      if (ps[i] > 1 + over) over = ps[i] - 1;
+      if (ps[i] < -ant) ant = -ps[i];
+      if (ts[i] <= 0.5) half = ps[i];
+    }
+    var said = [];
+    if (ant > 0.02) said.push("you pulled back " + Math.round(ant * 100) + "% first, which is anticipation");
+    if (over > 0.02) said.push("you overshot by " + Math.round(over * 100) + "% and came back");
+    said.push(half > 0.55 ? "most of the distance happened early — front-loaded"
+      : (half < 0.42 ? "most of the distance happened late — back-loaded"
+        : "the distance was spread fairly evenly"));
+    saidOut.textContent = said.join("; ") + ".";
+  }
+
+  stage.addEventListener("pointerup", finish);
+  stage.addEventListener("pointercancel", finish);
+
+  // ---------- preset buttons ----------
+  var btns = Array.prototype.slice.call(document.querySelectorAll(".btn[data-ease]"));
+  var note = document.getElementById("teachNote");
+  btns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      currentKey = b.getAttribute("data-ease");
+      btns.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      note.innerHTML = PRESETS[currentKey].note;
+      cycleStart = null;
+    });
+  });
+
+  // ---------- loop ----------
+  var cycleStart = null;
+  var HOLD = 500;
+
+  function frame(now) {
+    if (cycleStart === null) cycleStart = now;
+    var ms = PRESETS[currentKey].ms;
+    var t = Math.min(1, ((now - cycleStart) % (ms + HOLD)) / ms);
+    drawTeach(t);
+
+    strips.forEach(function (s) {
+      var st = Math.min(1, ((now - cycleStart) % (s.ms + HOLD)) / s.ms);
+      var span = s.el.parentElement.clientWidth - 16;
+      s.el.style.transform = "translateX(" + (s.e(st) * span) + "px)";
+    });
+
+    requestAnimationFrame(frame);
+  }
+
+  function resizeAll() { sizeTeach(); sizePlot(); drawTeach(0); }
+
+  window.addEventListener("resize", resizeAll);
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", function () { drawTeach(0); drawPlot(); });
+  }
+  if (window.MutationObserver) {
+    new MutationObserver(function () { drawPlot(); }).observe(document.documentElement, {
+      attributes: true, attributeFilter: ["data-theme"]
+    });
+  }
+
+  resizeAll();
+  if (!reduce) requestAnimationFrame(frame);
+  else {
+    drawTeach(1);
+    strips.forEach(function (s) {
+      var span = s.el.parentElement.clientWidth - 16;
+      s.el.style.transform = "translateX(" + span + "px)";
+    });
+  }
+})();
+</script>

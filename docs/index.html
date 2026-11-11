@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flick</title>
+<meta name="description" content="Flick turns a thumb-drag into an easing curve and the code for CSS, Compose, Android, Flutter, SwiftUI and After Effects.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="accent-bar"></div>
+<div class="wrap">
+  <p class="kicker">Ashwin R.</p>
+  <h1>You draw the motion. It writes the math.</h1>
+  <p>Flick is an Android app for motion design. Drag the way an animation should feel. It fits that gesture to an easing curve and hands you the code.</p>
+  <p>Easing tools usually start from two handles on a graph. Flick starts from the gesture. Hesitate, dash, overshoot, and the shape of what you did becomes the curve.</p>
+
+  <div class="actions">
+    <a class="btn" href="https://github.com/ashwin-subspace/flick/releases/latest/download/Flick-debug.apk">Download APK</a>
+    <a class="btn ghost" href="curve-tester.html">Try the curve tester</a>
+  </div>
+  <p class="muted">Sideload the APK. It is a release file, not part of the git tree. Android 7 and up. Fully offline. The only permission is vibration, for the Feel preview.</p>
+
+  <div class="instrument">
+    <div class="inst-head">
+      <span>Try the idea</span>
+      <span>drag left to right</span>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="plot"></canvas>
+      <div class="stage-note">Drag across this panel the way an animation should feel</div>
+    </div>
+    <div class="readout">
+      <div class="code-line" id="cssOut">transition: transform <b>420ms</b> cubic-bezier(<b>0.42, 0, 0.58, 1</b>);</div>
+      <div class="fit-stats" id="stats">waiting for a gesture — showing ease-in-out</div>
+      <div class="demo">
+        <div class="lane">
+          <span class="lane-label">yours</span>
+          <div class="track"><div class="dot" id="dotA"></div></div>
+        </div>
+        <div class="lane">
+          <span class="lane-label">default</span>
+          <div class="track"><div class="dot is-ghost" id="dotB"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>What one flick does</h2>
+  <p>The phone reads historical touch samples, not just the delivered event, then smooths them with a One Euro filter. Progress is the projection onto the start-to-end line, so a pull-back is negative and anticipation shows up.</p>
+  <p>Three models compete. A cubic bezier is preferred when it is good enough. A spring is chosen when you overshoot and settle. A path of cubic Hermite segments, with knots on the velocity extrema, is used when the motion has real beats. You can then drag the bezier handles, snap them, mirror them, clamp overshoot, and nudge the duration.</p>
+  <p>The result is named in animator language: anticipation, overshoot and settle, front-loaded or back-loaded. Hold Feel and the curve plays as vibration. Save curves with names and tags. The library exports as one <code>Motion.kt</code>.</p>
+
+  <h2>Stack</h2>
+  <p>Java, on the Android SDK, with no Gradle and no third-party libraries. <code>build.sh</code> runs aapt2, javac, d8 and apksigner. The math package has no Android imports and is tested on a desktop JVM.</p>
+  <p>Exports: CSS, CSS <code>linear()</code>, Jetpack Compose (<code>CubicBezierEasing</code> or <code>spring()</code>), Android <code>pathInterpolator</code>, Flutter, SwiftUI, and After Effects keyframe influence.</p>
+
+  <footer>
+    <p>Flick by Ashwin R. MIT License, Copyright (c) 2026 Ashwin R.</p>
+  </footer>
+</div>
+<script>
+(function () {
+  "use strict";
+  var stage = document.getElementById("stage");
+  var canvas = document.getElementById("plot");
+  var ctx = canvas.getContext("2d");
+  var cssOut = document.getElementById("cssOut");
+  var statsEl = document.getElementById("stats");
+  var dotA = document.getElementById("dotA");
+  var dotB = document.getElementById("dotB");
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function tok(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+  function makeBezier(x1, y1, x2, y2) {
+    var cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+    var cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+    function sx(t) { return ((ax * t + bx) * t + cx) * t; }
+    function sy(t) { return ((ay * t + by) * t + cy) * t; }
+    function dx(t) { return (3 * ax * t + 2 * bx) * t + cx; }
+    return function (x) {
+      if (x <= 0) return 0;
+      if (x >= 1) return 1;
+      var t = x, i, e, d;
+      for (i = 0; i < 8; i++) {
+        e = sx(t) - x;
+        if (Math.abs(e) < 1e-7) return sy(t);
+        d = dx(t);
+        if (Math.abs(d) < 1e-7) break;
+        t -= e / d;
+      }
+      var lo = 0, hi = 1;
+      t = x;
+      for (i = 0; i < 30; i++) {
+        var v = sx(t);
+        if (Math.abs(v - x) < 1e-7) break;
+        if (v > x) hi = t; else lo = t;
+        t = (lo + hi) / 2;
+      }
+      return sy(t);
+    };
+  }
+  function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+  function minimize(fn, start, step, iters) {
+    var n = start.length, i, j, k;
+    var simplex = [], fv = [];
+    for (i = 0; i <= n; i++) {
+      var p = start.slice();
+      if (i > 0) p[i - 1] += step;
+      simplex.push(p);
+      fv.push(fn(p));
+    }
+    for (k = 0; k < iters; k++) {
+      var order = simplex.map(function (_, idx) { return idx; }).sort(function (a, b) { return fv[a] - fv[b]; });
+      simplex = order.map(function (idx) { return simplex[idx]; });
+      fv = order.map(function (idx) { return fv[idx]; });
+      if (Math.abs(fv[n] - fv[0]) < 1e-12) break;
+      var cen = new Array(n).fill(0);
+      for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) cen[i] += simplex[j][i];
+        cen[i] /= n;
+      }
+      var xr = cen.map(function (c, idx) { return c + (c - simplex[n][idx]); });
+      var fr = fn(xr);
+      if (fr < fv[0]) {
+        var xe = cen.map(function (c, idx) { return c + 2 * (xr[idx] - c); });
+        var fe = fn(xe);
+        if (fe < fr) { simplex[n] = xe; fv[n] = fe; } else { simplex[n] = xr; fv[n] = fr; }
+      } else if (fr < fv[n - 1]) {
+        simplex[n] = xr; fv[n] = fr;
+      } else {
+        var xc = cen.map(function (c, idx) { return c + 0.5 * (simplex[n][idx] - c); });
+        var fc = fn(xc);
+        if (fc < fv[n]) { simplex[n] = xc; fv[n] = fc; }
+        else {
+          for (i = 1; i <= n; i++) {
+            for (j = 0; j < n; j++) simplex[i][j] = simplex[0][j] + 0.5 * (simplex[i][j] - simplex[0][j]);
+            fv[i] = fn(simplex[i]);
+          }
+        }
+      }
+    }
+    var best = 0;
+    for (i = 1; i <= n; i++) if (fv[i] < fv[best]) best = i;
+    return simplex[best];
+  }
+  function fitBezier(ts, ps) {
+    var starts = [[0.25, 0.1, 0.25, 1], [0.42, 0, 0.58, 1], [0.5, 0, 0.5, 1], [0.34, 1.56, 0.64, 1]];
+    var best = null, bestErr = Infinity;
+    function err(p) {
+      var b = makeBezier(clamp(p[0], 0, 1), clamp(p[1], -3, 4), clamp(p[2], 0, 1), clamp(p[3], -3, 4));
+      var s = 0;
+      for (var i = 0; i < ts.length; i++) { var d = b(ts[i]) - ps[i]; s += d * d; }
+      var pen = Math.pow(p[0] - clamp(p[0], 0, 1), 2) + Math.pow(p[2] - clamp(p[2], 0, 1), 2);
+      return s / ts.length + pen * 10;
+    }
+    for (var i = 0; i < starts.length; i++) {
+      var r = minimize(err, starts[i], 0.15, 260);
+      var c = [clamp(r[0], 0, 1), clamp(r[1], -3, 4), clamp(r[2], 0, 1), clamp(r[3], -3, 4)];
+      var e = err(c);
+      if (e < bestErr) { bestErr = e; best = c; }
+    }
+    return { p: best, rms: Math.sqrt(Math.max(0, bestErr)) };
+  }
+
+  var current = { p: [0.42, 0, 0.58, 1], rms: 0, dur: 420 };
+  var raw = null, pts = [], drawing = false, W = 0, H = 0, dpr = 1;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = stage.clientWidth;
+    H = stage.clientHeight;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    render();
+  }
+  function num(v) {
+    var s = v.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+    return s === "-0" ? "0" : s;
+  }
+  function render() {
+    if (!W || !H) return;
+    var padL = 34, padR = 22, padT = 22, padB = 26;
+    var gw = W - padL - padR, gh = H - padT - padB;
+    ctx.clearRect(0, 0, W, H);
+    var grid = tok("--plot-grid"), faint = tok("--ink-faint"), accent = tok("--accent"), ghost = tok("--ghost");
+    var lo = 0, hi = 1, i;
+    var b = makeBezier(current.p[0], current.p[1], current.p[2], current.p[3]);
+    for (i = 0; i <= 40; i++) {
+      var v = b(i / 40);
+      if (v < lo) lo = v;
+      if (v > hi) hi = v;
+    }
+    if (raw) {
+      for (i = 0; i < raw.ps.length; i++) {
+        if (raw.ps[i] < lo) lo = raw.ps[i];
+        if (raw.ps[i] > hi) hi = raw.ps[i];
+      }
+    }
+    lo = Math.min(lo, current.p[1], current.p[3]);
+    hi = Math.max(hi, current.p[1], current.p[3]);
+    var pad = Math.max(0.12, (hi - lo) * 0.1);
+    lo -= pad; hi += pad;
+    function X(t) { return padL + t * gw; }
+    function Y(v) { return padT + gh - ((v - lo) / (hi - lo)) * gh; }
+    ctx.strokeStyle = grid;
+    ctx.lineWidth = 1;
+    for (i = 1; i < 4; i++) {
+      ctx.beginPath();
+      ctx.moveTo(Math.round(X(i / 4)) + 0.5, padT);
+      ctx.lineTo(Math.round(X(i / 4)) + 0.5, padT + gh);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = faint;
+    ctx.globalAlpha = 0.45;
+    [0, 1].forEach(function (v) {
+      ctx.beginPath();
+      ctx.moveTo(padL, Math.round(Y(v)) + 0.5);
+      ctx.lineTo(padL + gw, Math.round(Y(v)) + 0.5);
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+    if (raw) {
+      ctx.strokeStyle = faint;
+      ctx.globalAlpha = 0.55;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (i = 0; i < raw.ts.length; i++) {
+        var px = X(raw.ts[i]), py = Y(raw.ps[i]);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    if (drawing && pts.length > 1) {
+      ctx.strokeStyle = accent;
+      ctx.lineCap = "round";
+      for (i = 1; i < pts.length; i++) {
+        var a = pts[i - 1], c = pts[i];
+        var dt = Math.max(1, c.t - a.t);
+        var sp = Math.hypot(c.x - a.x, c.y - a.y) / dt;
+        ctx.lineWidth = 1.5 + Math.min(9, sp * 5);
+        ctx.globalAlpha = 0.35 + Math.min(0.65, sp * 0.4);
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(c.x, c.y);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      return;
+    }
+    var g = makeBezier(0.4, 0, 0.2, 1);
+    ctx.strokeStyle = ghost;
+    ctx.globalAlpha = 0.55;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (i = 0; i <= 120; i++) {
+      var t = i / 120;
+      if (i === 0) ctx.moveTo(X(t), Y(g(t))); else ctx.lineTo(X(t), Y(g(t)));
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    for (i = 0; i <= 160; i++) {
+      var tt = i / 160;
+      if (i === 0) ctx.moveTo(X(tt), Y(b(tt))); else ctx.lineTo(X(tt), Y(b(tt)));
+    }
+    ctx.stroke();
+    ctx.strokeStyle = faint;
+    ctx.globalAlpha = 0.6;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(current.p[0]), Y(current.p[1])); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(1), Y(1)); ctx.lineTo(X(current.p[2]), Y(current.p[3])); ctx.stroke();
+    ctx.globalAlpha = 1;
+    [[current.p[0], current.p[1]], [current.p[2], current.p[3]]].forEach(function (h) {
+      ctx.beginPath();
+      ctx.arc(X(h[0]), Y(h[1]), 5.5, 0, Math.PI * 2);
+      ctx.fillStyle = tok("--plot-bg");
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = accent;
+      ctx.stroke();
+    });
+  }
+  function updateReadout() {
+    var p = current.p;
+    cssOut.innerHTML = "transition: transform <b>" + current.dur + "ms</b> cubic-bezier(<b>" +
+      num(p[0]) + ", " + num(p[1]) + ", " + num(p[2]) + ", " + num(p[3]) + "</b>);";
+    if (!raw) { statsEl.textContent = "waiting for a gesture — showing ease-in-out"; return; }
+    var over = 0, ant = 0;
+    for (var i = 0; i < raw.ps.length; i++) {
+      if (raw.ps[i] > 1 + over) over = raw.ps[i] - 1;
+      if (raw.ps[i] < -ant) ant = -raw.ps[i];
+    }
+    var bits = [raw.ts.length + " samples", "fit error " + (current.rms * 100).toFixed(1) + "%"];
+    if (over > 0.02) bits.push("overshoot " + Math.round(over * 100) + "%");
+    if (ant > 0.02) bits.push("anticipation " + Math.round(ant * 100) + "%");
+    statsEl.textContent = bits.join("  ·  ");
+  }
+  var samples = [];
+  function addSample(x, y, t) { samples.push({ x: x, y: y, t: t }); pts.push({ x: x, y: y, t: t }); }
+  function localPoint(ev) {
+    var r = canvas.getBoundingClientRect();
+    return { x: ev.clientX - r.left, y: ev.clientY - r.top };
+  }
+  stage.addEventListener("pointerdown", function (ev) {
+    drawing = true; samples = []; pts = [];
+    stage.classList.add("used");
+    try { stage.setPointerCapture(ev.pointerId); } catch (e) {}
+    var q = localPoint(ev);
+    addSample(q.x, q.y, ev.timeStamp);
+    render();
+    ev.preventDefault();
+  });
+  stage.addEventListener("pointermove", function (ev) {
+    if (!drawing) return;
+    var evs = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [ev];
+    for (var i = 0; i < evs.length; i++) {
+      var q = localPoint(evs[i]);
+      addSample(q.x, q.y, evs[i].timeStamp);
+    }
+    render();
+    ev.preventDefault();
+  });
+  function finish(ev) {
+    if (!drawing) return;
+    drawing = false;
+    var q = localPoint(ev);
+    addSample(q.x, q.y, ev.timeStamp);
+    var a = samples[0], z = samples[samples.length - 1];
+    var dx = z.x - a.x, dy = z.y - a.y;
+    var len = Math.hypot(dx, dy);
+    var dur = z.t - a.t;
+    if (samples.length < 6 || len < 40 || dur < 60) {
+      statsEl.textContent = samples.length < 6 ? "too few points — drag a little slower" : (len < 40 ? "too short — drag further" : "too fast — take a moment longer");
+      pts = [];
+      render();
+      return;
+    }
+    var ux = dx / len, uy = dy / len;
+    var ts = [], ps = [];
+    for (var i = 0; i < samples.length; i++) {
+      var s = samples[i];
+      ps.push(((s.x - a.x) * ux + (s.y - a.y) * uy) / len);
+      ts.push((s.t - a.t) / dur);
+    }
+    ts[0] = 0; ts[ts.length - 1] = 1;
+    for (i = 1; i < ts.length; i++) if (ts[i] <= ts[i - 1]) ts[i] = Math.min(1, ts[i - 1] + 1e-6);
+    raw = { ts: ts, ps: ps };
+    var f = fitBezier(ts, ps);
+    current.p = f.p;
+    current.rms = f.rms;
+    current.dur = Math.max(50, Math.min(5000, Math.round(dur / 10) * 10));
+    pts = [];
+    render();
+    updateReadout();
+  }
+  stage.addEventListener("pointerup", finish);
+  stage.addEventListener("pointercancel", finish);
+  var t0 = null, HOLD = 420;
+  function loop(now) {
+    if (t0 === null) t0 = now;
+    var cycle = current.dur + HOLD;
+    var e = (now - t0) % cycle;
+    var t = Math.min(1, e / current.dur);
+    var b = makeBezier(current.p[0], current.p[1], current.p[2], current.p[3]);
+    var g = makeBezier(0.4, 0, 0.2, 1);
+    var span = dotA.parentElement ? dotA.parentElement.clientWidth - 16 : 0;
+    dotA.style.transform = "translateX(" + (b(t) * span) + "px)";
+    dotB.style.transform = "translateX(" + (g(t) * span) + "px)";
+    requestAnimationFrame(loop);
+  }
+  window.addEventListener("resize", resize);
+  resize();
+  updateReadout();
+  if (!reduce) requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

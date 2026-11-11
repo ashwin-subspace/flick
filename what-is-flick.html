@@ -1,0 +1,1089 @@
+<title>Flick</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=JetBrains+Mono:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400..600&display=swap">
+
+<style>
+  :root {
+    --paper:      #EEF1EE;
+    --surface:    #F8FAF8;
+    --ink:        #14201C;
+    --ink-soft:   #4A5A54;
+    --ink-faint:  #81948C;
+    --rule:       #D3DBD6;
+    --grid:       #E3E8E4;
+    --accent:     #0F7A66;
+    --accent-wash:#DCEEE8;
+    --ghost:      #B4531F;
+    --plot-bg:    #F8FAF8;
+    --plot-grid:  #E1E7E3;
+
+    --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --f-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    --s--1: 0.8125rem;
+    --s-0:  1.0625rem;
+    --s-1:  1.3125rem;
+    --s-2:  1.75rem;
+    --s-4:  clamp(2.75rem, 8vw, 5rem);
+
+    --measure: 34rem;
+    --wide: 62rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0B0D10;
+      --surface:    #12171B;
+      --ink:        #E8EDF2;
+      --ink-soft:   #9AA7B2;
+      --ink-faint:  #6B7784;
+      --rule:       #232A31;
+      --grid:       #151B21;
+      --accent:     #4FE3C1;
+      --accent-wash:#123029;
+      --ghost:      #FF9F6B;
+      --plot-bg:    #0E1317;
+      --plot-grid:  #1B2229;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #0B0D10;
+    --surface:    #12171B;
+    --ink:        #E8EDF2;
+    --ink-soft:   #9AA7B2;
+    --ink-faint:  #6B7784;
+    --rule:       #232A31;
+    --grid:       #151B21;
+    --accent:     #4FE3C1;
+    --accent-wash:#123029;
+    --ghost:      #FF9F6B;
+    --plot-bg:    #0E1317;
+    --plot-grid:  #1B2229;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 34px 34px, 34px 34px;
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: var(--s-0);
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: var(--wide);
+    margin: 0 auto;
+    padding: 0 clamp(1.15rem, 4vw, 2.5rem);
+  }
+
+  .col { max-width: var(--measure); }
+
+  h1, h2, h3, .eyebrow, .metric-n, .btn { font-family: var(--f-display); }
+
+  h1 {
+    font-size: var(--s-4);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.94;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  h2 {
+    font-size: var(--s-2);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-size: var(--s-1);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  p { margin: 0; }
+  a { color: var(--accent); }
+
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+  strong { font-weight: 600; color: var(--ink); }
+
+  .mast {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.6rem 0 0;
+  }
+
+  .mark {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--f-display);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-size: 1.15rem;
+  }
+
+  .mark svg { display: block; }
+  .mast-meta { font-family: var(--f-mono); font-size: var(--s--1); color: var(--ink-faint); }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: clamp(3rem, 9vw, 6rem) 0 0;
+  }
+
+  .hero-sub { display: flex; flex-direction: column; gap: 1rem; max-width: 40rem; }
+  .thesis { font-size: var(--s-1); line-height: 1.45; color: var(--ink); }
+
+  .thesis em {
+    font-style: normal;
+    background: var(--accent-wash);
+    color: var(--ink);
+    padding: 0.05em 0.28em;
+    border-radius: 2px;
+  }
+
+  .instrument {
+    margin: clamp(2rem, 5vw, 3.25rem) 0 0;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .inst-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .inst-title {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .inst-hint { font-family: var(--f-mono); font-size: var(--s--1); color: var(--ink-faint); }
+
+  .stage {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: clamp(230px, 34vw, 320px);
+    touch-action: none;
+    cursor: crosshair;
+    background: var(--plot-bg);
+  }
+
+  .stage canvas { display: block; width: 100%; height: 100%; }
+
+  .stage-note {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 0.6rem 1.1rem 0.9rem;
+    font-family: var(--f-mono);
+    font-size: var(--s--1);
+    color: var(--ink-faint);
+    text-align: center;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .stage.used .stage-note { opacity: 0; }
+
+  .readout { display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--rule); }
+
+  @media (min-width: 46rem) {
+    .readout { grid-template-columns: 1.35fr 1fr; }
+    .readout .demo { border-top: 0; border-left: 1px solid var(--rule); }
+  }
+
+  .code-out {
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    min-width: 0;
+  }
+
+  .code-line {
+    font-family: var(--f-mono);
+    font-size: var(--s--1);
+    line-height: 1.5;
+    color: var(--ink);
+    overflow-x: auto;
+    white-space: pre;
+    padding-bottom: 0.15rem;
+  }
+
+  .code-line b { color: var(--accent); font-weight: 700; }
+
+  .fit-stats {
+    font-family: var(--f-mono);
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.02em;
+  }
+
+  .demo {
+    padding: 1rem 1.1rem;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    justify-content: center;
+  }
+
+  .lane { display: flex; align-items: center; gap: 0.65rem; }
+
+  .lane-label {
+    font-family: var(--f-mono);
+    font-size: 0.6875rem;
+    color: var(--ink-faint);
+    width: 3.6rem;
+    flex: none;
+  }
+
+  .track { position: relative; flex: 1; height: 22px; border-radius: 3px; background: var(--plot-grid); }
+
+  .dot {
+    position: absolute;
+    top: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    background: var(--accent);
+    will-change: transform;
+  }
+
+  .dot.is-ghost { background: var(--ghost); opacity: 0.5; }
+
+  section { padding: clamp(3.25rem, 8vw, 5.5rem) 0 0; }
+  .sec-head { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.4rem; }
+  .prose { display: flex; flex-direction: column; gap: 1rem; color: var(--ink-soft); }
+  .prose strong { color: var(--ink); }
+
+  .pipe {
+    display: grid;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 1.75rem;
+  }
+
+  @media (min-width: 52rem) { .pipe { grid-template-columns: repeat(4, 1fr); } }
+
+  .stagebox {
+    background: var(--surface);
+    padding: 1.15rem 1.15rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .stagebox .n {
+    font-family: var(--f-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .stagebox p { font-size: 0.9375rem; line-height: 1.5; color: var(--ink-soft); }
+
+  .tablewrap { overflow-x: auto; margin-top: 1.5rem; }
+
+  table { width: 100%; min-width: 34rem; border-collapse: collapse; font-size: 0.9375rem; }
+
+  th, td {
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  thead th {
+    font-family: var(--f-display);
+    font-size: 0.6875rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 700;
+    border-bottom-color: var(--ink-faint);
+  }
+
+  td.model { font-family: var(--f-display); font-weight: 700; white-space: nowrap; }
+  td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--ink-soft); white-space: nowrap; }
+  td.why { color: var(--ink-soft); }
+  .chosen td { background: var(--accent-wash); }
+  .chosen td.model { color: var(--accent); }
+
+  .says { display: grid; gap: 0.9rem; margin-top: 1.5rem; }
+  @media (min-width: 44rem) { .says { grid-template-columns: repeat(3, 1fr); } }
+
+  .say {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--surface);
+    padding: 1rem 1.05rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .say .q { font-family: var(--f-mono); font-size: 0.8125rem; color: var(--accent); font-weight: 500; }
+  .say p { font-size: 0.9375rem; color: var(--ink-soft); line-height: 1.5; }
+
+  .exports { display: grid; gap: 0.75rem; margin-top: 1.5rem; }
+  @media (min-width: 44rem) { .exports { grid-template-columns: 1fr 1fr; } }
+
+  .exp { border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); overflow: hidden; }
+
+  .exp-h {
+    padding: 0.5rem 0.85rem;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--f-display);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 700;
+  }
+
+  .exp pre {
+    margin: 0;
+    padding: 0.8rem 0.85rem;
+    font-family: var(--f-mono);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--ink);
+    overflow-x: auto;
+  }
+
+  .exp.hero-exp { grid-column: 1 / -1; }
+  .exp.hero-exp .exp-h { color: var(--accent); }
+
+  .spec {
+    margin-top: clamp(3rem, 7vw, 4.5rem);
+    border-top: 1px solid var(--ink-faint);
+    display: grid;
+    gap: 1px;
+    background: var(--rule);
+  }
+
+  @media (min-width: 40rem) { .spec { grid-template-columns: repeat(4, 1fr); } }
+
+  .metric {
+    background: var(--paper);
+    padding: 1.1rem 0.2rem 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .metric-n {
+    font-size: 1.65rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .metric-l { font-family: var(--f-mono); font-size: 0.6875rem; color: var(--ink-faint); letter-spacing: 0.03em; }
+
+  footer { padding: clamp(3rem, 7vw, 4.5rem) 0 3rem; color: var(--ink-faint); font-size: 0.875rem; }
+  footer .rule { height: 1px; background: var(--rule); margin-bottom: 1.1rem; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="mark">
+      <svg width="24" height="24" viewBox="0 0 108 108" aria-hidden="true">
+        <path d="M30,78 C 42,78 46,30 78,30" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round"></path>
+      </svg>
+      Flick
+    </div>
+    <div class="mast-meta">Android · 62&nbsp;KB · offline</div>
+  </header>
+
+  <div class="hero">
+    <p class="eyebrow">What the app does</p>
+    <h1>You draw the motion.<br>It writes the math.</h1>
+    <div class="hero-sub">
+      <p class="thesis">Every easing tool asks you to <em>guess numbers</em> until a movement feels right. Flick runs that backwards: you perform the feeling with your thumb, and it reverse-engineers the curve — then hands you the code for CSS, Compose, Android, Flutter, SwiftUI and After Effects.</p>
+    </div>
+  </div>
+
+  <div class="instrument">
+    <div class="inst-head">
+      <span class="inst-title">Try the idea</span>
+      <span class="inst-hint">drag left to right — hesitate, dash, overshoot</span>
+    </div>
+
+    <div class="stage" id="stage">
+      <canvas id="plot"></canvas>
+      <div class="stage-note">Drag across this panel the way an animation should feel</div>
+    </div>
+
+    <div class="readout">
+      <div class="code-out">
+        <div class="code-line" id="cssOut">transition: transform <b>420ms</b> cubic-bezier(<b>0.42, 0, 0.58, 1</b>);</div>
+        <div class="fit-stats" id="stats">waiting for a gesture — showing ease-in-out</div>
+      </div>
+      <div class="demo">
+        <div class="lane">
+          <span class="lane-label">yours</span>
+          <div class="track"><div class="dot" id="dotA"></div></div>
+        </div>
+        <div class="lane">
+          <span class="lane-label">default</span>
+          <div class="track"><div class="dot is-ghost" id="dotB"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">The inversion</p>
+      <h2>Handles on a graph are the wrong input</h2>
+    </div>
+    <div class="prose col">
+      <p>Open cubic-bezier.com, the Compose docs, or the After Effects graph editor and you get the same interface: two control handles you nudge until the preview stops looking wrong. You already know how the movement should feel. The tool makes you translate that feeling into coordinates by trial and error.</p>
+      <p>Flick removes the translation step. <strong>The gesture is the input.</strong> Hesitate, then dash, then let it settle — and the shape of what you did becomes the shape of the curve.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">Inside one flick</p>
+      <h2>Four stages, in order</h2>
+    </div>
+    <p class="prose col">Each stage feeds the next, so a single drag arrives as pasteable code.</p>
+
+    <div class="pipe">
+      <div class="stagebox">
+        <span class="n">CAPTURE</span>
+        <h3>Read the whole gesture</h3>
+        <p>Android batches touch input — read only the delivered event and most of the panel's 120–240&nbsp;Hz resolution is thrown away. Flick reads the historical samples too, then smooths with a One&nbsp;Euro filter, which cleans up hesitation without dulling a dash.</p>
+      </div>
+      <div class="stagebox">
+        <span class="n">FIT</span>
+        <h3>Three models compete</h3>
+        <p>Progress is measured by projecting your finger onto the start-to-end line, so a pull-back reads as <em>negative</em> progress. A bezier, a spring and a cubic spline each try to explain the trace. The simplest honest one wins.</p>
+      </div>
+      <div class="stagebox">
+        <span class="n">READ</span>
+        <h3>Name what you did</h3>
+        <p>It reports the motion in an animator's language rather than raw numbers: how deep the anticipation was, how far it overshot and how long it took to settle, whether the energy sits at the front or the back.</p>
+      </div>
+      <div class="stagebox">
+        <span class="n">EXPORT</span>
+        <h3>Hand over the code</h3>
+        <p>Seven targets, duration included — because a feel is a shape <em>and</em> a length. Save the curve with tags, and the whole library exports as one <span class="mono">Motion.kt</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">The fit</p>
+      <h2>A bezier cannot bounce</h2>
+    </div>
+    <div class="prose col">
+      <p>This is the part most easing tools skip. A single cubic bezier can't overshoot and settle, and it can't hesitate twice — so a tool that only offers beziers quietly forces every motion into a shape it may not have. Flick fits three models and tells you which one your gesture actually is.</p>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Model</th>
+            <th scope="col">Params</th>
+            <th scope="col">Fitted with</th>
+            <th scope="col">Chosen when</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="model">Bezier</td>
+            <td class="num">4</td>
+            <td class="why">Nelder-Mead from 6 starts, Newton solve to invert x(t)</td>
+            <td class="why">It lands within 1.8% — the common case, and what most people want</td>
+          </tr>
+          <tr>
+            <td class="model">Spring</td>
+            <td class="num">2</td>
+            <td class="why">Damped harmonic step response, fits damping ratio and frequency</td>
+            <td class="why">You overshot and settled, and a spring explains it as well as a bezier</td>
+          </tr>
+          <tr class="chosen">
+            <td class="model">Path</td>
+            <td class="num">2 per knot</td>
+            <td class="why">Cubic Hermite spline, knots on the velocity extrema</td>
+            <td class="why">Neither fits — the motion has real beats and needs a chain of cubics</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose col" style="margin-top:1.4rem">
+      <p>Selection is rule-based rather than pure lowest-error, because a many-knot spline nearly always wins on raw error while being the least useful answer. On one test gesture — hesitate, dash, overshoot, settle — the <strong>path fit at 0.014 error where the bezier managed 0.090</strong>. That's when the extra complexity is earned.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">What it says back</p>
+      <h2>It talks like an animator</h2>
+    </div>
+    <p class="prose col">Not a coordinate dump — the classical principles, measured out of your own gesture.</p>
+
+    <div class="says">
+      <div class="say">
+        <span class="q">Anticipation</span>
+        <p>The curve dipped below zero before moving. It reports how deep the pull-back went and when it bottomed out.</p>
+      </div>
+      <div class="say">
+        <span class="q">Overshoot 19%, settles in 424ms</span>
+        <p>It went past the target and came back. Both the height and the recovery time are measured, not estimated.</p>
+      </div>
+      <div class="say">
+        <span class="q">Character: front-loaded</span>
+        <p>Where the energy lives — how much of the distance was covered in the last 40% of the time.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">Judging it</p>
+      <h2>Five things move at once</h2>
+    </div>
+    <div class="prose col">
+      <p>One moving box is a lie. A curve that feels perfect on translation feels sluggish on opacity and wrong on scale — so the preview drives a box, a scaling circle, a fading card, a rotation and a staggered list together, with a faint ghost running the platform default in sync behind each one. Scrub through it, slow it to a quarter speed, or hold <strong>Feel</strong> and the curve plays as vibration, amplitude following velocity, so you can judge the shape with the screen off.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">The payoff</p>
+      <h2>Seven targets, one gesture</h2>
+    </div>
+    <p class="prose col">Real output from a single flick, duration carried through every one.</p>
+
+    <div class="exports">
+      <div class="exp hero-exp">
+        <div class="exp-h">After Effects — the rare one</div>
+        <pre>Keyframe 1  Easy Ease Out
+  influence 62.5%   speed 36.0%
+Keyframe 2  Easy Ease In
+  influence 62.5%   speed 36.0%
+Span 2010ms</pre>
+      </div>
+      <div class="exp">
+        <div class="exp-h">CSS</div>
+        <pre>transition: transform 1440ms
+  cubic-bezier(0.462, 0.006, 0.441, 0.901);</pre>
+      </div>
+      <div class="exp">
+        <div class="exp-h">Compose</div>
+        <pre>animationSpec = tween(
+    durationMillis = 1440,
+    easing = CubicBezierEasing(
+        0.462f, 0.006f, 0.441f, 0.901f)
+)</pre>
+      </div>
+      <div class="exp">
+        <div class="exp-h">Android XML</div>
+        <pre>&lt;pathInterpolator
+    android:controlX1="0.462"
+    android:controlY1="0.006"
+    android:controlX2="0.441"
+    android:controlY2="0.901" /&gt;</pre>
+      </div>
+      <div class="exp">
+        <div class="exp-h">Compose — spring</div>
+        <pre>animationSpec = spring(
+    dampingRatio = 0.525f,
+    stiffness = 91f
+)</pre>
+      </div>
+    </div>
+
+    <div class="prose col" style="margin-top:1.4rem">
+      <p>That After Effects block is the one nobody has in their pocket. AE doesn't use control points — it uses <strong>influence</strong>, the percentage of the time span each handle occupies. Converting between the two is an annoying bit of arithmetic that sits exactly on the seam between writing code and doing motion design.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head col">
+      <p class="eyebrow">Over time</p>
+      <h2>A motion vocabulary that's yours</h2>
+    </div>
+    <div class="prose col">
+      <p>Save a curve with a name and tags; search across name, tag or model; star the ones you keep reaching for. The grid of thumbnails becomes a wall of motion signatures — the snap you always use, your favourite settle, the bouncy one for confirmations. Export the whole library as a single Kotlin file and drop it into any project.</p>
+    </div>
+  </section>
+
+  <div class="spec">
+    <div class="metric"><span class="metric-n">62<span style="font-size:0.9rem"> KB</span></span><span class="metric-l">whole app</span></div>
+    <div class="metric"><span class="metric-n">1</span><span class="metric-l">permission (vibrate)</span></div>
+    <div class="metric"><span class="metric-n">0</span><span class="metric-l">network calls, ever</span></div>
+    <div class="metric"><span class="metric-n">289</span><span class="metric-l">tests passing</span></div>
+  </div>
+
+  <footer>
+    <div class="rule"></div>
+    <p>Fully offline. No account, no backend, no third-party libraries — every one of its 70 classes is its own. Android 7 and up.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var stage = document.getElementById("stage");
+  var canvas = document.getElementById("plot");
+  var ctx = canvas.getContext("2d");
+  var cssOut = document.getElementById("cssOut");
+  var statsEl = document.getElementById("stats");
+  var dotA = document.getElementById("dotA");
+  var dotB = document.getElementById("dotB");
+
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function tok(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function makeBezier(x1, y1, x2, y2) {
+    var cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+    var cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+    function sx(t) { return ((ax * t + bx) * t + cx) * t; }
+    function sy(t) { return ((ay * t + by) * t + cy) * t; }
+    function dx(t) { return (3 * ax * t + 2 * bx) * t + cx; }
+    return function (x) {
+      if (x <= 0) return 0;
+      if (x >= 1) return 1;
+      var t = x, i, e, d;
+      for (i = 0; i < 8; i++) {
+        e = sx(t) - x;
+        if (Math.abs(e) < 1e-7) return sy(t);
+        d = dx(t);
+        if (Math.abs(d) < 1e-7) break;
+        t -= e / d;
+      }
+      var lo = 0, hi = 1;
+      t = x;
+      for (i = 0; i < 30; i++) {
+        var v = sx(t);
+        if (Math.abs(v - x) < 1e-7) break;
+        if (v > x) hi = t; else lo = t;
+        t = (lo + hi) / 2;
+      }
+      return sy(t);
+    };
+  }
+
+  function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+
+  function minimize(fn, start, step, iters) {
+    var n = start.length, i, j, k;
+    var simplex = [], fv = [];
+    for (i = 0; i <= n; i++) {
+      var p = start.slice();
+      if (i > 0) p[i - 1] += step;
+      simplex.push(p);
+      fv.push(fn(p));
+    }
+    for (k = 0; k < iters; k++) {
+      var order = simplex.map(function (_, idx) { return idx; })
+        .sort(function (a, b) { return fv[a] - fv[b]; });
+      simplex = order.map(function (idx) { return simplex[idx]; });
+      fv = order.map(function (idx) { return fv[idx]; });
+      if (Math.abs(fv[n] - fv[0]) < 1e-12) break;
+
+      var cen = new Array(n).fill(0);
+      for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) cen[i] += simplex[j][i];
+        cen[i] /= n;
+      }
+      var xr = cen.map(function (c, idx) { return c + (c - simplex[n][idx]); });
+      var fr = fn(xr);
+      if (fr < fv[0]) {
+        var xe = cen.map(function (c, idx) { return c + 2 * (xr[idx] - c); });
+        var fe = fn(xe);
+        if (fe < fr) { simplex[n] = xe; fv[n] = fe; } else { simplex[n] = xr; fv[n] = fr; }
+      } else if (fr < fv[n - 1]) {
+        simplex[n] = xr; fv[n] = fr;
+      } else {
+        var xc = cen.map(function (c, idx) { return c + 0.5 * (simplex[n][idx] - c); });
+        var fc = fn(xc);
+        if (fc < fv[n]) { simplex[n] = xc; fv[n] = fc; }
+        else {
+          for (i = 1; i <= n; i++) {
+            for (j = 0; j < n; j++) {
+              simplex[i][j] = simplex[0][j] + 0.5 * (simplex[i][j] - simplex[0][j]);
+            }
+            fv[i] = fn(simplex[i]);
+          }
+        }
+      }
+    }
+    var best = 0;
+    for (i = 1; i <= n; i++) if (fv[i] < fv[best]) best = i;
+    return simplex[best];
+  }
+
+  function fitBezier(ts, ps) {
+    var starts = [
+      [0.25, 0.1, 0.25, 1], [0.42, 0, 0.58, 1],
+      [0.5, 0, 0.5, 1], [0.34, 1.56, 0.64, 1]
+    ];
+    var best = null, bestErr = Infinity;
+    function err(p) {
+      var b = makeBezier(clamp(p[0], 0, 1), clamp(p[1], -3, 4), clamp(p[2], 0, 1), clamp(p[3], -3, 4));
+      var s = 0;
+      for (var i = 0; i < ts.length; i++) { var d = b(ts[i]) - ps[i]; s += d * d; }
+      var pen = Math.pow(p[0] - clamp(p[0], 0, 1), 2) + Math.pow(p[2] - clamp(p[2], 0, 1), 2);
+      return s / ts.length + pen * 10;
+    }
+    for (var i = 0; i < starts.length; i++) {
+      var r = minimize(err, starts[i], 0.15, 260);
+      var c = [clamp(r[0], 0, 1), clamp(r[1], -3, 4), clamp(r[2], 0, 1), clamp(r[3], -3, 4)];
+      var e = err(c);
+      if (e < bestErr) { bestErr = e; best = c; }
+    }
+    return { p: best, rms: Math.sqrt(Math.max(0, bestErr)) };
+  }
+
+  var current = { p: [0.42, 0, 0.58, 1], rms: 0, dur: 420 };
+  var raw = null;
+  var pts = [];
+  var drawing = false;
+  var W = 0, H = 0, dpr = 1;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = stage.clientWidth;
+    H = stage.clientHeight;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    render();
+  }
+
+  function num(v) {
+    var s = v.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+    return s === "-0" ? "0" : s;
+  }
+
+  function render() {
+    if (!W || !H) return;
+    var padL = 34, padR = 22, padT = 22, padB = 26;
+    var gw = W - padL - padR, gh = H - padT - padB;
+
+    ctx.clearRect(0, 0, W, H);
+
+    var grid = tok("--plot-grid");
+    var faint = tok("--ink-faint");
+    var accent = tok("--accent");
+    var ghost = tok("--ghost");
+
+    var lo = 0, hi = 1, i;
+    var b = makeBezier(current.p[0], current.p[1], current.p[2], current.p[3]);
+    for (i = 0; i <= 40; i++) {
+      var v = b(i / 40);
+      if (v < lo) lo = v;
+      if (v > hi) hi = v;
+    }
+    if (raw) {
+      for (i = 0; i < raw.ps.length; i++) {
+        if (raw.ps[i] < lo) lo = raw.ps[i];
+        if (raw.ps[i] > hi) hi = raw.ps[i];
+      }
+    }
+    lo = Math.min(lo, current.p[1], current.p[3]);
+    hi = Math.max(hi, current.p[1], current.p[3]);
+    var pad = Math.max(0.12, (hi - lo) * 0.1);
+    lo -= pad; hi += pad;
+
+    function X(t) { return padL + t * gw; }
+    function Y(v) { return padT + gh - ((v - lo) / (hi - lo)) * gh; }
+
+    ctx.strokeStyle = grid;
+    ctx.lineWidth = 1;
+    for (i = 1; i < 4; i++) {
+      ctx.beginPath();
+      ctx.moveTo(Math.round(X(i / 4)) + 0.5, padT);
+      ctx.lineTo(Math.round(X(i / 4)) + 0.5, padT + gh);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = faint;
+    ctx.globalAlpha = 0.45;
+    [0, 1].forEach(function (v) {
+      ctx.beginPath();
+      ctx.moveTo(padL, Math.round(Y(v)) + 0.5);
+      ctx.lineTo(padL + gw, Math.round(Y(v)) + 0.5);
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+
+    ctx.fillStyle = faint;
+    ctx.font = '11px ' + (tok("--f-mono") || "monospace");
+    ctx.fillText("1", 12, Y(1) + 4);
+    ctx.fillText("0", 12, Y(0) + 4);
+
+    if (raw) {
+      ctx.strokeStyle = faint;
+      ctx.globalAlpha = 0.55;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (i = 0; i < raw.ts.length; i++) {
+        var px = X(raw.ts[i]), py = Y(raw.ps[i]);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    if (drawing && pts.length > 1) {
+      ctx.strokeStyle = accent;
+      ctx.lineCap = "round";
+      for (i = 1; i < pts.length; i++) {
+        var a = pts[i - 1], c = pts[i];
+        var dt = Math.max(1, c.t - a.t);
+        var sp = Math.hypot(c.x - a.x, c.y - a.y) / dt;
+        ctx.lineWidth = 1.5 + Math.min(9, sp * 5);
+        ctx.globalAlpha = 0.35 + Math.min(0.65, sp * 0.4);
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(c.x, c.y);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      return;
+    }
+
+    var g = makeBezier(0.4, 0, 0.2, 1);
+    ctx.strokeStyle = ghost;
+    ctx.globalAlpha = 0.5;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (i = 0; i <= 120; i++) {
+      var t = i / 120;
+      if (i === 0) ctx.moveTo(X(t), Y(g(t))); else ctx.lineTo(X(t), Y(g(t)));
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    for (i = 0; i <= 160; i++) {
+      var tt = i / 160;
+      if (i === 0) ctx.moveTo(X(tt), Y(b(tt))); else ctx.lineTo(X(tt), Y(b(tt)));
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = faint;
+    ctx.globalAlpha = 0.6;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(current.p[0]), Y(current.p[1])); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(1), Y(1)); ctx.lineTo(X(current.p[2]), Y(current.p[3])); ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    [[current.p[0], current.p[1]], [current.p[2], current.p[3]]].forEach(function (h) {
+      ctx.beginPath();
+      ctx.arc(X(h[0]), Y(h[1]), 5.5, 0, Math.PI * 2);
+      ctx.fillStyle = tok("--plot-bg");
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = accent;
+      ctx.stroke();
+    });
+  }
+
+  function updateReadout() {
+    var p = current.p;
+    cssOut.innerHTML = "transition: transform <b>" + current.dur + "ms</b> cubic-bezier(<b>" +
+      num(p[0]) + ", " + num(p[1]) + ", " + num(p[2]) + ", " + num(p[3]) + "</b>);";
+    if (!raw) {
+      statsEl.textContent = "waiting for a gesture — showing ease-in-out";
+      return;
+    }
+    var over = 0, ant = 0;
+    for (var i = 0; i < raw.ps.length; i++) {
+      if (raw.ps[i] > 1 + over) over = raw.ps[i] - 1;
+      if (raw.ps[i] < -ant) ant = -raw.ps[i];
+    }
+    var bits = [raw.ts.length + " samples", "fit error " + (current.rms * 100).toFixed(1) + "%"];
+    if (over > 0.02) bits.push("overshoot " + Math.round(over * 100) + "%");
+    if (ant > 0.02) bits.push("anticipation " + Math.round(ant * 100) + "%");
+    statsEl.textContent = bits.join("  ·  ");
+  }
+
+  var samples = [];
+
+  function addSample(x, y, t) {
+    samples.push({ x: x, y: y, t: t });
+    pts.push({ x: x, y: y, t: t });
+  }
+
+  function localPoint(ev) {
+    var r = canvas.getBoundingClientRect();
+    return { x: ev.clientX - r.left, y: ev.clientY - r.top };
+  }
+
+  stage.addEventListener("pointerdown", function (ev) {
+    drawing = true;
+    samples = [];
+    pts = [];
+    stage.classList.add("used");
+    try { stage.setPointerCapture(ev.pointerId); } catch (e) { /* not fatal */ }
+    var q = localPoint(ev);
+    addSample(q.x, q.y, ev.timeStamp);
+    render();
+    ev.preventDefault();
+  });
+
+  stage.addEventListener("pointermove", function (ev) {
+    if (!drawing) return;
+    var evs = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [ev];
+    for (var i = 0; i < evs.length; i++) {
+      var q = localPoint(evs[i]);
+      addSample(q.x, q.y, evs[i].timeStamp);
+    }
+    render();
+    ev.preventDefault();
+  });
+
+  function finish(ev) {
+    if (!drawing) return;
+    drawing = false;
+    var q = localPoint(ev);
+    addSample(q.x, q.y, ev.timeStamp);
+
+    var a = samples[0], z = samples[samples.length - 1];
+    var dx = z.x - a.x, dy = z.y - a.y;
+    var len = Math.hypot(dx, dy);
+    var dur = z.t - a.t;
+
+    if (samples.length < 6 || len < 40 || dur < 60) {
+      statsEl.textContent = samples.length < 6
+        ? "too few points — drag a little slower"
+        : (len < 40 ? "too short — drag further" : "too fast — take a moment longer");
+      pts = [];
+      render();
+      return;
+    }
+
+    var ux = dx / len, uy = dy / len;
+    var ts = [], ps = [];
+    for (var i = 0; i < samples.length; i++) {
+      var s = samples[i];
+      ps.push(((s.x - a.x) * ux + (s.y - a.y) * uy) / len);
+      ts.push((s.t - a.t) / dur);
+    }
+    ts[0] = 0; ts[ts.length - 1] = 1;
+    for (i = 1; i < ts.length; i++) if (ts[i] <= ts[i - 1]) ts[i] = Math.min(1, ts[i - 1] + 1e-6);
+
+    raw = { ts: ts, ps: ps };
+    var f = fitBezier(ts, ps);
+    current.p = f.p;
+    current.rms = f.rms;
+    current.dur = Math.max(50, Math.min(5000, Math.round(dur / 10) * 10));
+    pts = [];
+    render();
+    updateReadout();
+  }
+
+  stage.addEventListener("pointerup", finish);
+  stage.addEventListener("pointercancel", finish);
+
+  var t0 = null;
+  var HOLD = 420;
+
+  function loop(now) {
+    if (t0 === null) t0 = now;
+    var cycle = current.dur + HOLD;
+    var e = (now - t0) % cycle;
+    var t = Math.min(1, e / current.dur);
+    var b = makeBezier(current.p[0], current.p[1], current.p[2], current.p[3]);
+    var g = makeBezier(0.4, 0, 0.2, 1);
+    var span = dotA.parentElement ? dotA.parentElement.clientWidth - 16 : 0;
+    dotA.style.transform = "translateX(" + (b(t) * span) + "px)";
+    dotB.style.transform = "translateX(" + (g(t) * span) + "px)";
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener("resize", resize);
+
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", render);
+  }
+  if (window.MutationObserver) {
+    new MutationObserver(render).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"]
+    });
+  }
+
+  resize();
+  updateReadout();
+  if (!reduce) requestAnimationFrame(loop);
+  else {
+    var span = dotA.parentElement.clientWidth - 16;
+    dotA.style.transform = "translateX(" + span + "px)";
+    dotB.style.transform = "translateX(" + span + "px)";
+  }
+})();
+</script>
+

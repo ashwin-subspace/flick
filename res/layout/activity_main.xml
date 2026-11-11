@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg">
+
+    <!-- ================= CAPTURE ================= -->
+    <FrameLayout
+        android:id="@+id/page_capture"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.flick.ui.CaptureView
+            android:id="@+id/capture"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:id="@+id/capture_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:duplicateParentState="false"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Flick the motion"
+                android:textColor="@color/text"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="Drag your thumb across the screen the way the animation should feel. Hesitate, dash, overshoot."
+                android:textColor="@color/muted"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/capture_err"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="92dp"
+            android:textColor="@color/ghost"
+            android:textSize="13sp"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/btn_library"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="28dp"
+            android:background="@drawable/bg_btn_ghost"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingLeft="22dp"
+            android:paddingRight="22dp"
+            android:paddingTop="11dp"
+            android:paddingBottom="11dp"
+            android:text="Library"
+            android:textColor="@color/text"
+            android:textSize="14sp" />
+    </FrameLayout>
+
+    <!-- ================= RESULT ================= -->
+    <ScrollView
+        android:id="@+id/page_result"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="34dp">
+
+            <TextView
+                android:id="@+id/r_headline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/r_reason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/muted"
+                android:textSize="13sp" />
+
+            <com.flick.ui.CurveView
+                android:id="@+id/curve"
+                android:layout_width="match_parent"
+                android:layout_height="210dp"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_card" />
+
+            <TextView
+                android:id="@+id/curve_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="@color/muted"
+                android:textSize="11sp" />
+
+            <HorizontalScrollView
+                android:id="@+id/refine_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView android:id="@+id/btn_snap" style="@style/Chip" android:text="Snap" />
+
+                    <TextView
+                        android:id="@+id/btn_mirror"
+                        style="@style/Chip"
+                        android:layout_marginLeft="8dp"
+                        android:text="Mirror" />
+
+                    <TextView
+                        android:id="@+id/btn_clamp"
+                        style="@style/Chip"
+                        android:layout_marginLeft="8dp"
+                        android:text="Clamp" />
+
+                    <TextView
+                        android:id="@+id/btn_dur_down"
+                        style="@style/Chip"
+                        android:layout_marginLeft="14dp"
+                        android:text="−10ms" />
+
+                    <TextView
+                        android:id="@+id/dur_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:minWidth="56dp"
+                        android:gravity="center"
+                        android:textColor="@color/accent"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/btn_dur_up"
+                        style="@style/Chip"
+                        android:text="+10ms" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/chip_bezier"
+                    style="@style/Chip"
+                    android:text="Bezier" />
+
+                <TextView
+                    android:id="@+id/chip_spring"
+                    style="@style/Chip"
+                    android:layout_marginLeft="8dp"
+                    android:text="Spring" />
+
+                <TextView
+                    android:id="@+id/chip_poly"
+                    style="@style/Chip"
+                    android:layout_marginLeft="8dp"
+                    android:text="Path" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/r_stats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_card"
+                android:lineSpacingExtra="4dp"
+                android:padding="14dp"
+                android:textColor="@color/text"
+                android:textSize="13sp" />
+
+            <TextView
+                style="@style/Section"
+                android:text="PREVIEW" />
+
+            <com.flick.ui.PreviewWall
+                android:id="@+id/wall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <SeekBar
+                android:id="@+id/scrub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:max="1000" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <TextView android:id="@+id/btn_play" style="@style/Chip" android:text="Pause" />
+
+                <TextView
+                    android:id="@+id/btn_speed"
+                    style="@style/Chip"
+                    android:layout_marginLeft="8dp"
+                    android:text="1x" />
+
+                <TextView
+                    android:id="@+id/btn_ghost"
+                    style="@style/Chip"
+                    android:layout_marginLeft="8dp"
+                    android:text="Ghost" />
+
+                <TextView
+                    android:id="@+id/btn_haptic"
+                    style="@style/Chip"
+                    android:layout_marginLeft="8dp"
+                    android:text="Feel" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/Section"
+                android:text="EXPORT" />
+
+            <LinearLayout
+                android:id="@+id/exports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/btn_save"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_btn"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingTop="14dp"
+                    android:paddingBottom="14dp"
+                    android:text="Save to library"
+                    android:textColor="#FF06251F"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/btn_again"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_btn_ghost"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingTop="14dp"
+                    android:paddingBottom="14dp"
+                    android:text="Flick again"
+                    android:textColor="@color/text"
+                    android:textSize="15sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ================= LIBRARY ================= -->
+    <LinearLayout
+        android:id="@+id/page_library"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp"
+        android:paddingTop="18dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Library"
+                android:textColor="@color/text"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/btn_kotlin"
+                style="@style/Chip"
+                android:text="Kotlin" />
+
+            <TextView
+                android:id="@+id/btn_back"
+                style="@style/Chip"
+                android:layout_marginLeft="8dp"
+                android:text="Close" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/lib_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_chip"
+            android:hint="Search name, tag or model"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:maxLines="1"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:textColor="@color/text"
+            android:textColorHint="@color/muted"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/lib_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:gravity="center"
+            android:text="No curves yet.\nFlick one and save it."
+            android:textColor="@color/muted"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <GridView
+            android:id="@+id/grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="14dp"
+            android:horizontalSpacing="10dp"
+            android:verticalSpacing="10dp"
+            android:numColumns="2"
+            android:scrollbars="none" />
+    </LinearLayout>
+</FrameLayout>
